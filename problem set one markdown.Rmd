@@ -1,0 +1,149 @@
+---
+title: "Problem Sets 1"
+output:
+  word_document: default
+  html_document: default
+date: "2024-02-17"
+resources: "https://stackoverflow.com/questions/6286313/remove-an-entire-column-from-a-data-frame-in-r"
+---
+
+# The first Markdown report for problems set one
+## By : Decker Mecham
+
+
+
+
+# Question 1
+
+# A.  Check current working directory
+```{r}
+getwd()
+```
+
+
+# B.  Read the dataset into R and call it "movies"
+```{r}
+movies <- read.csv("datasets/IMDB_movies.csv")
+```
+# C . Dimensions of the dataset
+```{r}
+dim(movies)
+```
+
+# D. Names of the variables in the dataset
+```{r}
+names(movies)
+```
+```{r}
+library(tidyverse)
+
+
+movies %>% glimpse()
+```
+# E . char variables below
+movie_title, director_name, country, language, content_rating, genres, color, plot_keywords, actor_1_name, actor_2_name
+
+# F. Show the first 5 rows of the dataset
+```{r}
+slice(movies, 1:5)
+```
+# G. Arrange the dataset in descending order by gross (total box office revenue in $USD) and show the ten movies with the largest box office revenue
+```{r}
+top_10_grossing = arrange(movies, (-gross)) %>% slice(1:10)
+top_10_grossing
+top_10_grossing$director_name[1]
+```
+
+
+
+
+# H. Remove the variable facenumber_in_poster and store the smaller dataset as movies_sub, and check dimensions to ensure movies_sub has one fewer variable
+```{r}
+movies_sub <- select(movies, -facenumber_in_poster)
+dim(movies_sub)
+dim(movies)
+```
+# I. Number of movies rated as PG-13, and Average revenue (gross) for PG-13 movies
+```{r}
+pg_13_movies = filter(movies, content_rating == "PG-13")
+nrow(pg_13_movies)
+mean(pg_13_movies$gross, na.rm = TRUE)
+```
+
+
+# Question 2 (first load library for ggplot2)
+```{r}
+library(ggplot2)
+```
+# A. Create scatter plot of IMDB score vs. gross
+```{r, echo = FALSE}
+ggplot(movies, aes(x = imdb_score, y = gross)) +
+  geom_point() +
+  labs(x = "IMDB Score", y = "Gross (USD)") +
+  ggtitle("IMDB Score vs. Gross") +
+  theme_minimal()
+```
+
+# B. add alpha 1/10
+```{r,echo = FALSE}
+ggplot(movies, aes(x = imdb_score, y = gross)) +
+  geom_point(alpha = 1/10) +
+  labs(x = "IMDB Score", y = "Gross (USD)") +
+  ggtitle("IMDB Score vs. Gross") +
+  theme_minimal()
+```
+ 
+ 
+# C. Create a new variable for gross in millions of dollars 
+```{r}
+movies <- movies %>% mutate(gross_M = gross / 1000000)
+```
+
+# D. Create scatter plot of IMDB score vs. gross in millions with smoothing line
+```{r, echo = FALSE}
+ggplot(movies, aes(x = imdb_score, y = gross_M)) +
+  geom_point(alpha = 1/10) +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(x = "IMDB Score", y = "Gross (Millions of USD)") +
+  ggtitle("IMDB Score vs. Gross (in Millions)") +
+  theme_minimal()
+```
+
+# E. Filter movies by James Cameron and create scatter plot of IMDB score vs. gross in millions for James Cameron films with movie titles as points
+```{r}
+cameron_movies <- filter(movies, director_name == "James Cameron")
+```
+
+```{r, echo = FALSE}
+ggplot(cameron_movies, aes(x = imdb_score, y = gross_M)) +
+  geom_point(color = "blue") +
+  geom_text(aes(label = movie_title), color = "blue") +
+  ggtitle("James Cameron Films: IMDB Score vs. Gross (in Millions)") +
+  theme_minimal()
+```
+
+
+# F. more reasonable x and y axis with xlim 
+```{r, echo = FALSE}
+ggplot(cameron_movies, aes(x = imdb_score, y = gross_M)) +
+  geom_point(color = "blue") +
+  geom_text(aes(label = movie_title), color = "blue") +
+  xlim(7, 9) + ylim(0, 800) +
+  ggtitle("James Cameron Films: IMDB Score vs. Gross (in Millions)") +
+  theme_minimal()
+```
+
+
+# G.  better name for x and y axis with xlab and ylab or using labs is possible as well. 
+```{r, echo = FALSE}
+ggplot(cameron_movies, aes(x = imdb_score, y = gross_M)) +
+  geom_point(color = "blue") +
+  geom_text(aes(label = movie_title), color = "blue") +
+  xlim(7, 9) + ylim(0, max(cameron_movies$gross_M)) +
+  xlab("IMDB Score") + ylab("Gross (Millions of USD)") +
+  ggtitle("James Cameron Films: IMDB Score vs. Gross (in Millions)") +
+  theme_minimal()
+```
+
+
+
